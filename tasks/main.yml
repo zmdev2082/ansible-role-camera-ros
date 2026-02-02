@@ -36,8 +36,8 @@
   file:
     path: "{{ camera_workspace_dir }}/src"
     state: directory
-    owner: "{{ camera_user.name }}"
-    group: "{{ camera_user.group }}"
+    owner: "{{ ros2_user.name }}"
+    group: "{{ ros2_user.group }}"
     mode: '0755'
   become: true
 
@@ -48,7 +48,7 @@
     version: "{{ libcamera_branch }}"
     update: yes
   become: true
-  become_user: "{{ camera_user.name }}"
+  become_user: "{{ ros2_user.name }}"
 
 - name: Clone camera_ros
   git:
@@ -57,7 +57,7 @@
     version: "{{ camera_ros_branch }}"
     update: yes
   become: true
-  become_user: "{{ camera_user.name }}"
+  become_user: "{{ ros2_user.name }}"
 
 - name: Build camera_ros workspace with colcon
   shell: |
@@ -71,7 +71,7 @@
   args:
     executable: /bin/bash
   become: true
-  become_user: "{{ camera_user.name }}"
+  become_user: "{{ ros2_user.name }}"
   register: colcon_build
   changed_when: "'Starting >>> ' in colcon_build.stderr"
 
@@ -81,4 +81,4 @@
     line: "source {{ camera_workspace_dir }}/install/setup.bash"
     create: yes
   become: true
-  become_user: "{{ camera_user.name }}"
+  become_user: "{{ ros2_user.name }}"

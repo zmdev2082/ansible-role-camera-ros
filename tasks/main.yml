@@ -1,0 +1,84 @@
+---
+# Main tasks for camera_ros role
+
+- name: Install libcamera build dependencies
+  apt:
+    name:
+      - meson
+      - ninja-build
+      - pkg-config
+      - libyaml-dev
+      - python3-yaml
+      - python3-ply
+      - python3-jinja2
+      - libgnutls28-dev
+      - openssl
+      - libdw-dev
+      - libunwind-dev
+      - libudev-dev
+      - libboost-dev
+      - libtiff-dev
+      - pybind11-dev
+      - libglib2.0-dev
+      - libgstreamer1.0-dev
+      - libgstreamer-plugins-base1.0-dev
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Install colcon-meson for building libcamera in ROS workspace
+  apt:
+    name: python3-colcon-meson
+    state: present
+  become: true
+
+- name: Create camera workspace directory
+  file:
+    path: "{{ camera_workspace_dir }}/src"
+    state: directory
+    owner: "{{ camera_user.name }}"
+    group: "{{ camera_user.group }}"
+    mode: '0755'
+  become: true
+
+- name: Clone libcamera (raspberrypi fork with imx500 support)
+  git:
+    repo: "{{ libcamera_repo }}"
+    dest: "{{ camera_workspace_dir }}/src/libcamera"
+    version: "{{ libcamera_branch }}"
+    update: yes
+  become: true
+  become_user: "{{ camera_user.name }}"
+
+- name: Clone camera_ros
+  git:
+    repo: "{{ camera_ros_repo }}"
+    dest: "{{ camera_workspace_dir }}/src/camera_ros"
+    version: "{{ camera_ros_branch }}"
+    update: yes
+  become: true
+  become_user: "{{ camera_user.name }}"
+
+- name: Build camera_ros workspace with colcon
+  shell: |
+    source /opt/ros/{{ ROS_DISTRO }}/setup.bash
+    cd {{ camera_workspace_dir }}
+    colcon build --event-handlers=console_direct+ \
+      --cmake-args -DCMAKE_BUILD_TYPE={{ build_type | capitalize }} \
+      --meson-args -Dgstreamer={{ 'enabled' if enable_gstreamer else 'disabled' }} \
+                   -Dpycamera={{ 'enabled' if enable_pycamera else 'disabled' }} \
+      {{ '-j 1' if build_jobs == 1 else '' }}
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: "{{ camera_user.name }}"
+  register: colcon_build
+  changed_when: "'Starting >>> ' in colcon_build.stderr"
+
+- name: Add camera_ws to .bashrc
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    line: "source {{ camera_workspace_dir }}/install/setup.bash"
+    create: yes
+  become: true
+  become_user: "{{ camera_user.name }}"

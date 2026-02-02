@@ -1,0 +1,29 @@
+---
+# defaults file for camera_ros
+
+# ROS distribution (should match system ROS installation)
+ROS_DISTRO: jazzy
+
+# Workspace directory for building camera_ros and libcamera
+camera_workspace_dir: "{{ ansible_env.HOME }}/camera_ws"
+
+# libcamera repository and branch
+libcamera_repo: https://github.com/raspberrypi/libcamera.git
+libcamera_branch: main
+
+# camera_ros repository and branch
+camera_ros_repo: https://github.com/christianrauch/camera_ros.git
+camera_ros_branch: main
+
+# Build configuration
+build_type: release
+enable_gstreamer: true
+enable_pycamera: true
+
+# Number of parallel build jobs (use -j 1 on low-memory devices like Pi Zero)
+build_jobs: auto  # auto uses all available cores, or set to specific number like 1
+
+# User for workspace ownership
+camera_user:
+  name: ubuntu
+  group: ubuntu

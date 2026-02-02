@@ -5,7 +5,7 @@
 ROS_DISTRO: jazzy
 
 # Workspace directory for building camera_ros and libcamera
-camera_workspace_dir: "{{ ansible_env.HOME }}/camera_ws"
+camera_workspace_dir: /home/{{ ros2_user.name }}/camera_ws
 
 # libcamera repository and branch
 libcamera_repo: https://github.com/raspberrypi/libcamera.git

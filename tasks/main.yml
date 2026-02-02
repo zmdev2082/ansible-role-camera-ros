@@ -39,6 +39,36 @@
     state: present
   become: true
 
+- name: Check if IMX500 overlay exists
+  stat:
+    path: /boot/firmware/overlays/imx500.dtbo
+  register: imx500_overlay
+
+- name: Download IMX500 device tree overlay
+  get_url:
+    url: https://github.com/raspberrypi/firmware/raw/master/boot/overlays/imx500.dtbo
+    dest: /boot/firmware/overlays/imx500.dtbo
+    mode: '0644'
+  become: true
+  when: not imx500_overlay.stat.exists
+  ignore_errors: yes
+
+- name: Enable IMX500 overlay in boot config
+  lineinfile:
+    path: /boot/firmware/config.txt
+    line: 'dtoverlay=imx500'
+    state: present
+  become: true
+  when: not imx500_overlay.stat.exists
+  register: config_changed
+
+- name: Reboot if IMX500 overlay was added
+  reboot:
+    msg: "Rebooting to enable IMX500 camera overlay"
+    reboot_timeout: 300
+  become: true
+  when: config_changed.changed
+
 - name: Create camera workspace directory
   file:
     path: "{{ camera_workspace_dir }}/src"

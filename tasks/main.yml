@@ -32,6 +32,13 @@
     state: present
   become: true
 
+- name: Install ROS2 camera dependencies
+  apt:
+    name:
+      - ros-{{ lookup('env', 'ROS_DISTRO') | default('jazzy', true) }}-camera-info-manager
+    state: present
+  become: true
+
 - name: Create camera workspace directory
   file:
     path: "{{ camera_workspace_dir }}/src"

@@ -62,11 +62,20 @@
   when: not imx500_overlay.stat.exists
   register: config_changed
 
-- name: Reboot if IMX500 overlay was added
-  reboot:
-    msg: "Rebooting to enable IMX500 camera overlay"
-    reboot_timeout: 300
+- name: Reboot to enable IMX500 overlay
+  shell: sleep 2 && reboot &
+  async: 1
+  poll: 0
   become: true
+  when: config_changed.changed
+  ignore_errors: yes
+
+- name: Wait for system to come back online
+  wait_for_connection:
+    connect_timeout: 20
+    sleep: 5
+    delay: 5
+    timeout: 300
   when: config_changed.changed
 
 - name: Create camera workspace directory

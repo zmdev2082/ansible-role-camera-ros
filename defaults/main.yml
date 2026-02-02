@@ -24,6 +24,6 @@ enable_pycamera: true
 build_jobs: auto  # auto uses all available cores, or set to specific number like 1
 
 # User for workspace ownership
-camera_user:
+ros2_user:
   name: ubuntu
   group: ubuntu

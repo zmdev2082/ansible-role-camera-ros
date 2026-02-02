@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  author: MXLab
+  description: Builds and installs camera_ros with libcamera for Raspberry Pi cameras on ROS2
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Ubuntu
+      versions:
+        - "24.04"
+  galaxy_tags:
+    - ros2
+    - camera
+    - raspberry-pi
+    - libcamera
+    - jazzy
+
+dependencies:
+  - name: ros2
+    version: main
